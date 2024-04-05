@@ -27,6 +27,8 @@ ApiConnector.getStocks(response => {
     if (response.success) {
         ratesBoard.clearTable();
         ratesBoard.fillTable(response.data);
+    } else {
+        favoritesWidget.setMessage(response.success, response.message = response.error);
     }
 });
 setInterval(ApiConnector.getStocks(response => {
