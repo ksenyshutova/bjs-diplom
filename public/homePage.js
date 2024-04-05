@@ -1,7 +1,11 @@
 "use strict";
 
-let userLogout = new LogoutButton();
-userLogout.action = () =>
+let logoutButton = new LogoutButton();
+let ratesBoard = new RatesBoard();
+let moneyManager = new MoneyManager();
+let favoritesWidget = new FavoritesWidget();
+
+logoutButton.action = () =>
     ApiConnector.logout(response => {
         console.log(response);
         if (response.success) {
@@ -13,100 +17,102 @@ ApiConnector.current(response => {
     console.log(response);
     if (response.success) {
         ProfileWidget.showProfile(response.data);
+    } else {
+        favoritesWidget.setMessage(response.success, response.message = response.error);
     }
 });
 
-let userRatesBoard = new RatesBoard();
 ApiConnector.getStocks(response => {
     console.log(response);
     if (response.success) {
-        userRatesBoard.clearTable();
-        userRatesBoard.fillTable(response.data);
+        ratesBoard.clearTable();
+        ratesBoard.fillTable(response.data);
     }
 });
 setInterval(ApiConnector.getStocks(response => {
     console.log(response);
     if (response.success) {
-        userRatesBoard.clearTable();
-        userRatesBoard.fillTable(response.data);
+        ratesBoard.clearTable();
+        ratesBoard.fillTable(response.data);
+    } else {
+        favoritesWidget.setMessage(response.success, response.message = response.error);
     }
 }), 60000);
 
-
-let userMoneyManager = new MoneyManager();
-userMoneyManager.addMoneyCallback = data => {
+moneyManager.addMoneyCallback = data => {
     console.log(data);
     ApiConnector.addMoney(data, response => {
         console.log(response);
         if (response.success) {
             ProfileWidget.showProfile(response.data);
-            userMoneyManager.setMessage(response.success, response.message = 'Пополнение счёта успешно выполнено');
+            moneyManager.setMessage(response.success, response.message = 'Пополнение счёта успешно выполнено');
         } else {
-            userMoneyManager.setMessage(response.success, response.message = response.error);
+            moneyManager.setMessage(response.success, response.message = response.error);
         }
     });
 };
 
-userMoneyManager.conversionMoneyCallback = data => {
+moneyManager.conversionMoneyCallback = data => {
     console.log(data);
     ApiConnector.convertMoney(data, response => {
         console.log(response);
         if (response.success) {
             ProfileWidget.showProfile(response.data);
-            userMoneyManager.setMessage(response.success, response.message = 'Конвертация валют успешно выполнена');
+            moneyManager.setMessage(response.success, response.message = 'Конвертация валют успешно выполнена');
         } else {
-            userMoneyManager.setMessage(response.success, response.message = response.error);
+            moneyManager.setMessage(response.success, response.message = response.error);
         }
     });
 };
 
-userMoneyManager.sendMoneyCallback = data => {
+moneyManager.sendMoneyCallback = data => {
     console.log(data);
     ApiConnector.transferMoney(data, response => {
         console.log(response);
         if (response.success) {
             ProfileWidget.showProfile(response.data);
-            userMoneyManager.setMessage(response.success, response.message = 'Перевод средств успешно выполнен');
+            moneyManager.setMessage(response.success, response.message = 'Перевод средств успешно выполнен');
         } else {
-            userMoneyManager.setMessage(response.success, response.message = response.error);
+            moneyManager.setMessage(response.success, response.message = response.error);
         }
     });
 }
 
-let userFavoritesWidget = new FavoritesWidget();
 ApiConnector.getFavorites(response => {
     console.log(response);
     if (response.success) {
-        userFavoritesWidget.clearTable();
-        userFavoritesWidget.fillTable(response.data);
-        userMoneyManager.updateUsersList(response.data);
+        favoritesWidget.clearTable();
+        favoritesWidget.fillTable(response.data);
+        moneyManager.updateUsersList(response.data);
+    } else {
+        favoritesWidget.setMessage(response.success, response.message = response.error);
     }
 });
 
-userFavoritesWidget.addUserCallback = data => {
+favoritesWidget.addUserCallback = data => {
     console.log(data);
     ApiConnector.addUserToFavorites(data, response => {
         console.log(response);
         if (response.success) {
-            userFavoritesWidget.clearTable();
-            userFavoritesWidget.fillTable(response.data);
-            userMoneyManager.updateUsersList(response.data);
+            favoritesWidget.clearTable();
+            favoritesWidget.fillTable(response.data);
+            moneyManager.updateUsersList(response.data);
         } else {
-            userMoneyManager.setMessage(response.success, response.message = response.error);
+            moneyManager.setMessage(response.success, response.message = response.error);
         }
     });
 }
 
-userFavoritesWidget.removeUserCallback = data => {
+favoritesWidget.removeUserCallback = data => {
     console.log(data);
     ApiConnector.removeUserFromFavorites(data, response => {
         console.log(response);
         if (response.success) {
-            userFavoritesWidget.clearTable();
-            userFavoritesWidget.fillTable(response.data);
-            userMoneyManager.updateUsersList(response.data);
+            favoritesWidget.clearTable();
+            favoritesWidget.fillTable(response.data);
+            moneyManager.updateUsersList(response.data);
         } else {
-            userMoneyManager.setMessage(response.success, response.message = response.error);
+            moneyManager.setMessage(response.success, response.message = response.error);
         }
     });
 }
